@@ -1,9 +1,14 @@
-# api documentation for  [sails-generate-auth (v0.3.1)](https://github.com/kasperisager/sails-generate-auth)  [![npm package](https://img.shields.io/npm/v/npmdoc-sails-generate-auth.svg?style=flat-square)](https://www.npmjs.org/package/npmdoc-sails-generate-auth) [![travis-ci.org build-status](https://api.travis-ci.org/npmdoc/node-npmdoc-sails-generate-auth.svg)](https://travis-ci.org/npmdoc/node-npmdoc-sails-generate-auth)
+# npmdoc-sails-generate-auth
+
+#### api documentation for  [sails-generate-auth (v0.3.1)](https://github.com/kasperisager/sails-generate-auth)  [![npm package](https://img.shields.io/npm/v/npmdoc-sails-generate-auth.svg?style=flat-square)](https://www.npmjs.org/package/npmdoc-sails-generate-auth) [![travis-ci.org build-status](https://api.travis-ci.org/npmdoc/node-npmdoc-sails-generate-auth.svg)](https://travis-ci.org/npmdoc/node-npmdoc-sails-generate-auth)
+
 #### Generate a Passport.js authentication layer for your Sails app that will Rock Your Socks™.
 
-[![NPM](https://nodei.co/npm/sails-generate-auth.png?downloads=true)](https://www.npmjs.com/package/sails-generate-auth)
+[![NPM](https://nodei.co/npm/sails-generate-auth.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/sails-generate-auth)
 
-[![apidoc](https://npmdoc.github.io/node-npmdoc-sails-generate-auth/build/screenCapture.buildNpmdoc.browser._2Fhome_2Ftravis_2Fbuild_2Fnpmdoc_2Fnode-npmdoc-sails-generate-auth_2Ftmp_2Fbuild_2Fapidoc.html.png)](https://npmdoc.github.io/node-npmdoc-sails-generate-auth/build/apidoc.html)
+- [https://npmdoc.github.io/node-npmdoc-sails-generate-auth/build/apidoc.html](https://npmdoc.github.io/node-npmdoc-sails-generate-auth/build/apidoc.html)
+
+[![apidoc](https://npmdoc.github.io/node-npmdoc-sails-generate-auth/build/screenCapture.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://npmdoc.github.io/node-npmdoc-sails-generate-auth/build/apidoc.html)
 
 ![npmPackageListing](https://npmdoc.github.io/node-npmdoc-sails-generate-auth/build/screenCapture.npmPackageListing.svg)
 
@@ -17,12 +22,10 @@
 
 {
     "author": {
-        "name": "Kasper Isager",
-        "email": "kasperisager@gmail.com"
+        "name": "Kasper Isager"
     },
     "bugs": {
-        "url": "http://github.com/kasperisager/sails-generate-auth/issues",
-        "email": "kasperisager@gmail.com"
+        "url": "http://github.com/kasperisager/sails-generate-auth/issues"
     },
     "dependencies": {
         "lodash": ">=2.4.x",
@@ -54,13 +57,11 @@
     "main": "lib/index.js",
     "maintainers": [
         {
-            "name": "kasperisager",
-            "email": "kasperisager@gmail.com"
+            "name": "kasperisager"
         }
     ],
     "name": "sails-generate-auth",
     "optionalDependencies": {},
-    "readme": "ERROR: No README data found!",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/kasperisager/sails-generate-auth.git"
@@ -73,85 +74,6 @@
     "scripts": {},
     "version": "0.3.1"
 }
-```
-
-
-
-# <a name="apidoc.tableOfContents"></a>[table of contents](#apidoc.tableOfContents)
-
-#### [module sails-generate-auth](#apidoc.module.sails-generate-auth)
-1.  [function <span class="apidocSignatureSpan">sails-generate-auth.</span>before (scope, cb)](#apidoc.element.sails-generate-auth.before)
-1.  object <span class="apidocSignatureSpan">sails-generate-auth.</span>targets
-1.  string <span class="apidocSignatureSpan">sails-generate-auth.</span>templatesDirectory
-
-
-
-# <a name="apidoc.module.sails-generate-auth"></a>[module sails-generate-auth](#apidoc.module.sails-generate-auth)
-
-#### <a name="apidoc.element.sails-generate-auth.before"></a>[function <span class="apidocSignatureSpan">sails-generate-auth.</span>before (scope, cb)](#apidoc.element.sails-generate-auth.before)
-- description and source-code
-```javascript
-before = function (scope, cb) {
-
-  //
-  // scope.args are the raw command line arguments.
-  //
-  // e.g. if you run:
-  // sails generate controlller user find create update
-  // then:
-  // scope.args = ['user', 'find', 'create', 'update']
-  //
-
-  _.defaults(scope, {
-    // foo: scope.args[0]
-  });
-
-
-
-  //
-  // Validate custom scope variables which
-  // are required by this generator.
-  //
-
-  if ( !scope.rootPath ) {
-    return cb(new Error(
-      'Missing scope variable: 'rootPath'\n' +
-      'Please make sure it is specified and try again.'
-    ));
-  }
-
-
-  //
-  // Determine default values based on the
-  // available scope.
-  //
-
-  _.defaults(scope, {
-    currentTime: new Date()
-  });
-
-
-
-  //
-  // Take multiple "passes" if necessary.
-  //
-
-  _.defaults(scope, {
-    rootPath: scope.rootPath
-  });
-
-
-
-  //
-  // Trigger callback with no error to proceed.
-  //
-
-  cb();
-}
-```
-- example usage
-```shell
-n/a
 ```
 
 

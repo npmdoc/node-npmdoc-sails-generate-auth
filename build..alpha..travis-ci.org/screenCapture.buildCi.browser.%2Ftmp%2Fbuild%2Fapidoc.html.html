@@ -65,6 +65,12 @@
 
         <li>
 
+            <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">sails-generate-auth.</span>AuthController</span>
+
+        </li>
+
+        <li>
+
             <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">sails-generate-auth.</span>targets</span>
 
         </li>
@@ -77,13 +83,58 @@
 
     </ol></li>
 
-    <li class="apidocModuleLi"><a href="#apidoc.module.sails-generate-auth.before">module sails-generate-auth.before</a><ol>
+    <li class="apidocModuleLi"><a href="#apidoc.module.sails-generate-auth.AuthController">module sails-generate-auth.AuthController</a><ol>
 
         <li>
 
-            <a class="apidocElementLiA" href="#apidoc.element.sails-generate-auth.before.before">
-            function <span class="apidocSignatureSpan">sails-generate-auth.</span>before
-            <span class="apidocSignatureSpan">(scope, cb)</span>
+            <a class="apidocElementLiA" href="#apidoc.element.sails-generate-auth.AuthController.callback">
+            function <span class="apidocSignatureSpan">sails-generate-auth.AuthController.</span>callback
+            <span class="apidocSignatureSpan">(req, res)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.sails-generate-auth.AuthController.disconnect">
+            function <span class="apidocSignatureSpan">sails-generate-auth.AuthController.</span>disconnect
+            <span class="apidocSignatureSpan">(req, res)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.sails-generate-auth.AuthController.login">
+            function <span class="apidocSignatureSpan">sails-generate-auth.AuthController.</span>login
+            <span class="apidocSignatureSpan">(req, res)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.sails-generate-auth.AuthController.logout">
+            function <span class="apidocSignatureSpan">sails-generate-auth.AuthController.</span>logout
+            <span class="apidocSignatureSpan">(req, res)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.sails-generate-auth.AuthController.provider">
+            function <span class="apidocSignatureSpan">sails-generate-auth.AuthController.</span>provider
+            <span class="apidocSignatureSpan">(req, res)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.sails-generate-auth.AuthController.register">
+            function <span class="apidocSignatureSpan">sails-generate-auth.AuthController.</span>register
+            <span class="apidocSignatureSpan">(req, res)</span>
             </a>
 
         </li>
@@ -168,77 +219,249 @@
 
 
 
+
+
 </div>
 
 <div class="apidocSectionDiv">
-<h1><a href="#apidoc.module.sails-generate-auth.before" id="apidoc.module.sails-generate-auth.before">module sails-generate-auth.before</a></h1>
+<h1><a href="#apidoc.module.sails-generate-auth.AuthController" id="apidoc.module.sails-generate-auth.AuthController">module sails-generate-auth.AuthController</a></h1>
 
 
     <h2>
-        <a href="#apidoc.element.sails-generate-auth.before.before" id="apidoc.element.sails-generate-auth.before.before">
-        function <span class="apidocSignatureSpan">sails-generate-auth.</span>before
-        <span class="apidocSignatureSpan">(scope, cb)</span>
+        <a href="#apidoc.element.sails-generate-auth.AuthController.callback" id="apidoc.element.sails-generate-auth.AuthController.callback">
+        function <span class="apidocSignatureSpan">sails-generate-auth.AuthController.</span>callback
+        <span class="apidocSignatureSpan">(req, res)</span>
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">before = function (scope, cb) {
+    <li>description and source-code<pre class="apidocCodePre">callback = function (req, res) {
+  function tryAgain (err) {
 
-  //
-  // scope.args are the raw command line arguments.
-  //
-  // e.g. if you run:
-  // sails generate controlller user find create update
-  // then:
-  // scope.args = ['user', 'find', 'create', 'update']
-  //
+    // Only certain error messages are returned via req.flash('error', someError)
+    // because we shouldn't expose internal authorization errors to the user.
+    // We do return a generic error and the original request body.
+    var flashError = req.flash('error')[0];
 
-  _.defaults(scope, {
-    // foo: scope.args[0]
-  });
+    if (err &amp;&amp; !flashError ) {
+      req.flash('error', 'Error.Passport.Generic');
+    } else if (flashError) {
+      req.flash('error', flashError);
+    }
+    req.flash('form', req.body);
 
+    // If an error was thrown, redirect the user to the
+    // login, register or disconnect action initiator view.
+    // These views should take care of rendering the error messages.
+    var action = req.param('action');
 
-
-  //
-  // Validate custom scope variables which
-  // are required by this generator.
-  //
-
-  if ( !scope.rootPath ) {
-    return cb(new Error(
-      'Missing scope variable: `rootPath`\n' +
-      'Please make sure it is specified and try again.'
-    ));
+    switch (action) {
+      case 'register':
+        res.redirect('/register');
+        break;
+      case 'disconnect':
+        res.redirect('back');
+        break;
+      default:
+        res.redirect('/login');
+    }
   }
 
+  passport.callback(req, res, function (err, user, challenges, statuses) {
+    if (err || !user) {
+      return tryAgain(challenges);
+    }
 
-  //
-  // Determine default values based on the
-  // available scope.
-  //
+    req.login(user, function (err) {
+      if (err) {
+        return tryAgain(err);
+      }
 
-  _.defaults(scope, {
-    currentTime: new Date()
+      // Mark the session as authenticated to work with default Sails sessionAuth.js policy
+      req.session.authenticated = true
+
+      // Upon successful login, send the user to the homepage were req.user
+      // will be available.
+      res.redirect('/');
+    });
+  });
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    res.redirect('back');
+    break;
+  default:
+    res.redirect('/login');
+}
+    }
+
+    passport.<span class="apidocCodeKeywordSpan">callback</span>(req, res, function (err, user, challenges, statuses) {
+if (err || !user) {
+  return tryAgain(challenges);
+}
+
+req.login(user, function (err) {
+  if (err) {
+    return tryAgain(err);
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.sails-generate-auth.AuthController.disconnect" id="apidoc.element.sails-generate-auth.AuthController.disconnect">
+        function <span class="apidocSignatureSpan">sails-generate-auth.AuthController.</span>disconnect
+        <span class="apidocSignatureSpan">(req, res)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">disconnect = function (req, res) {
+  passport.disconnect(req, res);
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+  /**
+   * Disconnect a passport from a user
+   *
+   * @param {Object} req
+   * @param {Object} res
+   */
+  disconnect: function (req, res) {
+    passport.<span class="apidocCodeKeywordSpan">disconnect</span>(req, res);
+  }
+};
+
+module.exports = AuthController;
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.sails-generate-auth.AuthController.login" id="apidoc.element.sails-generate-auth.AuthController.login">
+        function <span class="apidocSignatureSpan">sails-generate-auth.AuthController.</span>login
+        <span class="apidocSignatureSpan">(req, res)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">login = function (req, res) {
+  var strategies = sails.config.passport
+    , providers  = {};
+
+  // Get a list of available providers for use in your templates.
+  Object.keys(strategies).forEach(function (key) {
+    if (key === 'local') {
+      return;
+    }
+
+    providers[key] = {
+      name: strategies[key].name
+    , slug: key
+    };
   });
 
-
-
-  //
-  // Take multiple "passes" if necessary.
-  //
-
-  _.defaults(scope, {
-    rootPath: scope.rootPath
+  // Render the `auth/login.ext` view
+  res.view({
+    providers : providers
+  , errors    : req.flash('error')
   });
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    }
+
+    passport.callback(req, res, function (err, user, challenges, statuses) {
+if (err || !user) {
+  return tryAgain(challenges);
+}
+
+req.<span class="apidocCodeKeywordSpan">login</span>(user, function (err) {
+  if (err) {
+    return tryAgain(err);
+  }
+
+  // Mark the session as authenticated to work with default Sails sessionAuth.js policy
+  req.session.authenticated = true
+...</pre></li>
+    </ul>
 
 
 
-  //
-  // Trigger callback with no error to proceed.
-  //
+    <h2>
+        <a href="#apidoc.element.sails-generate-auth.AuthController.logout" id="apidoc.element.sails-generate-auth.AuthController.logout">
+        function <span class="apidocSignatureSpan">sails-generate-auth.AuthController.</span>logout
+        <span class="apidocSignatureSpan">(req, res)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">logout = function (req, res) {
+  req.logout();
 
-  cb();
+  // mark the user as logged out for auth purposes
+  req.session.authenticated = false;
+
+  res.redirect('/');
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+ * For more information on logging out users in Passport.js, check out:
+ * http://passportjs.org/guide/logout/
+ *
+ * @param {Object} req
+ * @param {Object} res
+ */
+logout: function (req, res) {
+  req.<span class="apidocCodeKeywordSpan">logout</span>();
+
+  // mark the user as logged out for auth purposes
+  req.session.authenticated = false;
+
+  res.redirect('/');
+},
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.sails-generate-auth.AuthController.provider" id="apidoc.element.sails-generate-auth.AuthController.provider">
+        function <span class="apidocSignatureSpan">sails-generate-auth.AuthController.</span>provider
+        <span class="apidocSignatureSpan">(req, res)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">provider = function (req, res) {
+  passport.endpoint(req, res);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.sails-generate-auth.AuthController.register" id="apidoc.element.sails-generate-auth.AuthController.register">
+        function <span class="apidocSignatureSpan">sails-generate-auth.AuthController.</span>register
+        <span class="apidocSignatureSpan">(req, res)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">register = function (req, res) {
+  res.view({
+    errors: req.flash('error')
+  });
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+var provider = req.param('provider', 'local')
+  , action   = req.param('action');
+
+// Passport.js wasn't really built for local user registration, but it's nice
+// having it tied into everything else.
+if (provider === 'local' &amp;&amp; action !== undefined) {
+  if (action === 'register' &amp;&amp; !req.user) {
+    this.protocols.local.<span class="apidocCodeKeywordSpan">register</span>(req, res, next);
+  }
+  else if (action === 'connect' &amp;&amp; req.user) {
+    this.protocols.local.connect(req, res, next);
+  }
+  else if (action === 'disconnect' &amp;&amp; req.user) {
+    this.disconnect(req, res, next);
+  }
+...</pre></li>
     </ul>
 
 

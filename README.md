@@ -1,6 +1,6 @@
 # npmdoc-sails-generate-auth
 
-#### api documentation for  [sails-generate-auth (v0.3.1)](https://github.com/kasperisager/sails-generate-auth)  [![npm package](https://img.shields.io/npm/v/npmdoc-sails-generate-auth.svg?style=flat-square)](https://www.npmjs.org/package/npmdoc-sails-generate-auth) [![travis-ci.org build-status](https://api.travis-ci.org/npmdoc/node-npmdoc-sails-generate-auth.svg)](https://travis-ci.org/npmdoc/node-npmdoc-sails-generate-auth)
+#### basic api documentation for  [sails-generate-auth (v0.3.1)](https://github.com/kasperisager/sails-generate-auth)  [![npm package](https://img.shields.io/npm/v/npmdoc-sails-generate-auth.svg?style=flat-square)](https://www.npmjs.org/package/npmdoc-sails-generate-auth) [![travis-ci.org build-status](https://api.travis-ci.org/npmdoc/node-npmdoc-sails-generate-auth.svg)](https://travis-ci.org/npmdoc/node-npmdoc-sails-generate-auth)
 
 #### Generate a Passport.js authentication layer for your Sails app that will Rock Your Socks™.
 
@@ -72,7 +72,8 @@
         "sailsVersion": "0.10.x"
     },
     "scripts": {},
-    "version": "0.3.1"
+    "version": "0.3.1",
+    "bin": {}
 }
 ```
 
